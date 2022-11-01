@@ -22,6 +22,11 @@ const BlogPostSchema = new Schema({
         type: String,
         required: true
     },
+    blogPostBody: {
+        type: String,
+        required: true
+    },
+    tags: [String],
     state:  { 
         type: String, 
         required: true, 
@@ -34,13 +39,8 @@ const BlogPostSchema = new Schema({
     reading_time: {
         type: String
     },
-    tags: [String],
     updated: {
       type: Date
-    },
-    body: {
-        type: String,
-        required: true
     },
     createAt : {
         type: Date,
