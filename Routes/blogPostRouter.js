@@ -3,15 +3,15 @@ const BlogPostController = require('../Controllers/blogPostController');
 
 const blogPostRouter = express.Router();
 
-blogRouter.get('/', BlogPostController.getAllBlogPosts);
+blogPostRouter.get('/', BlogPostController.getAllBlogPosts);
 
-blogRouter.get('/:Id', BlogPostController.getBlogPostByID)
+blogPostRouter.get('/:id', BlogPostController.getBlogPostByID)
 
-blogRouter.post('/', BlogPostController.createBlogPost)
+blogPostRouter.post('/', BlogPostController.createBlogPost)
 
-blogRouter.patch('/:id', BlogPostController.updateBlogPost)
+blogPostRouter.patch('/:id', BlogPostController.editBlogPost)
 
-blogRouter.delete('/:id', BlogPostController.deleteBlogPostByID)
+blogPostRouter.delete('/:id', BlogPostController.deleteBlogPostByID)
 
 
 module.exports = blogPostRouter;

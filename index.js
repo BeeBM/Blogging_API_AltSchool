@@ -10,7 +10,7 @@ const app = express()
 
 // middleware
 app.use(express.json());
-// app.use(BasicAuth) 
+// app.use(BasicAuth);
 
 // routes
 app.use('/blogs', BlogPostRouter)

@@ -1,5 +1,9 @@
 const express = require('express');
 const Database = require('./Database/mongoDb');
+const passport = require('passport');
+const BlogPostRouter = require('./Routes/blogPostRouter');
+const BloggerRouter = require('./Routes/authRouter');
+const bodyParser = require("body-parser");
 
 const CONFIG = require('./Config/config');
 
@@ -8,10 +12,16 @@ const app = express()
 // connect to database
 Database.connectToDb();
 
+app.use(bodyParser.json());
+
 // home route
 app.get('/', (req, res) => {
     return res.status(200).json({ message: 'Welcome to the World of Blogs!' })
 })
+
+// routes
+app.use('/blogs', BlogPostRouter);
+app.use('/',  BloggerRouter);
 
 // 404 route
 app.use('*', (req, res) => {

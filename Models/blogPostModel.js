@@ -7,8 +7,12 @@ const Schema = mongoose.Schema;
 const BlogPostId = Schema.ObjectId;
 
 //Define blogPost schema
-const BlogPostSchema = new Schema({
+const BlogPostSchema = new Schema({ 
     id: BlogPostId,
+    viewedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
     title: {
         type: String,
         required: true,
@@ -22,11 +26,6 @@ const BlogPostSchema = new Schema({
         type: String,
         required: true
     },
-    blogPostBody: {
-        type: String,
-        required: true
-    },
-    tags: [String],
     state:  { 
         type: String, 
         required: true, 
@@ -34,13 +33,22 @@ const BlogPostSchema = new Schema({
         default: 'draft' 
     },
     read_count: {
-        type: Number
+        type: Number,
+        default: 0
     },
     reading_time: {
-        type: String
+        type: String,
     },
-    updated: {
-      type: Date
+    image: {
+        type: String,
+    },
+    imageDescription: {
+        type: String,
+    },
+    tags: [String],
+    blogPostBody: {
+        type: String,
+        required: true
     },
     createAt : {
         type: Date,
