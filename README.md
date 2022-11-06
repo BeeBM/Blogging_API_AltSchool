@@ -255,17 +255,20 @@ Success
 - Method: GET
 - - Header
     - Authorization: Bearer {token}
+- Query params: 
+    - author
 - Responses
 
 Success
 ```
 {
   "_id": "636442af5af2ac544da4483e",
-  "viewedBy": [],
   "title": "The Old shall lead.",
   "description": "The Old shall lead by wisdom.",
   "author": "Older Young 1234@mail.com",
   "state": "draft",
+  "read_count": 0,
+  "reading_time": "1 min read",
   "tags": [
     "Old",
     "Lead",
@@ -274,8 +277,7 @@ Success
   "blogPostBody": "Replit, and programming in general, just took a huge leap forward. No longer are you restricted to writing on computers that go “clickity clackity”. Now you can write on screens that go “tippity tappity”. In all seriousness, the Repit Mobile app is a new, enjoyable approach to programming on mobile The Replit Mobile app is available on Android and iOS. If you’d like to learn more about features like the coding joystick and smart suggestion, you’ll find every unique mobile feature here.",
   "createAt": "2022-11-03T22:37:35.986Z",
   "lastUpdateAt": "2022-11-03T22:37:35.986Z",
-  "__v": 0,
-  "read_count": 2
+  "__v": 0
 }
 ```
 ---
@@ -287,11 +289,10 @@ Success
 - - Header
     - Authorization: Bearer {token}
 - Query params: 
+    - author
     - state
     - page (default: 1)
     - per_page (default: 20)
-    - order_by (default: createAt)
-    - blogPost (options: asc | desc)
 - Responses
 
 Success
@@ -301,11 +302,12 @@ Success
   "blogPosts": [
     {
       "_id": "636442af5af2ac544da4483e",
-      "viewedBy": [],
       "title": "The Old shall lead.",
       "description": "The Old shall lead by wisdom.",
       "author": "Older Yo 12uuu@mail.com",
       "state": "draft",
+      "read_count": 0,
+      "reading_time": "1 min read",
       "tags": [
         "Old",
         "Lead",
@@ -322,7 +324,9 @@ Success
       "title": "The Old shall us.",
       "description": "The Old shall lead by maturity.",
       "author": "Older Young",
-      "state": "draft",
+      "state": "published",
+      "read_count": 0,
+      "reading_time": "2 min read",
       "tags": [
         "Old",
         "Leader",

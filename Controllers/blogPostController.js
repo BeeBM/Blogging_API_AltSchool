@@ -147,6 +147,7 @@ const getOwnBlogPostByID = async (req, res) => {
     const id = req.params.id
 
     const blogPost = await BlogPostModel.findById(id)
+    .find({author: { $eq: author }})
     blogPost.read_count++
 
     await blogPost.save()
