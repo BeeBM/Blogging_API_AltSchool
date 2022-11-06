@@ -6,13 +6,9 @@ const Schema = mongoose.Schema;
 //Enable blogpost ID
 const BlogPostId = Schema.ObjectId;
 
-//Define blogPost schema
+//Define BlogPost Schema
 const BlogPostSchema = new Schema({ 
     id: BlogPostId,
-    viewedBy: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    }],
     title: {
         type: String,
         required: true,
@@ -43,7 +39,7 @@ const BlogPostSchema = new Schema({
         type: String,
     },
     imageDescription: {
-        type: String,
+        type: String, 
     },
     tags: [String],
     blogPostBody: {

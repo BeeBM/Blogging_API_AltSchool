@@ -1,7 +1,7 @@
 const Joi = require('joi');
 
 const AddBloggerSchema = Joi.object({
-    firstname: Joi.string()
+    username: Joi.string()
         .max(255) 
         .trim()
         .required(),
@@ -40,7 +40,7 @@ const UpdateBloggerSchema = Joi.object({
 
 
 
-async function AddAuthorValidationMW(req, res, next) {
+async function AddBloggerValidationMW(req, res, next) {
     const bloggerPayLoad = req.body
 
     try {
@@ -54,7 +54,7 @@ async function AddAuthorValidationMW(req, res, next) {
     }
 }
 
-async function UpdateAuthorValidationMW(req, res, next) {
+async function UpdateBloggerValidationMW(req, res, next) {
     const bloggerPayLoad = req.body
 
     try {
@@ -69,6 +69,6 @@ async function UpdateAuthorValidationMW(req, res, next) {
 }
 
 module.exports = {
-    AddAuthorValidationMW,
-    UpdateAuthorValidationMW
+    AddBloggerValidationMW,
+    UpdateBloggerValidationMW
 }

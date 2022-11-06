@@ -1,5 +1,7 @@
 const express = require('express');
 const BlogPostController = require('../Controllers/blogPostController');
+const authorization = require('../utils/authorization');
+const checkBodyContains = require('../utils/validation');
 
 const blogPostRouter = express.Router();
 
@@ -7,11 +9,15 @@ blogPostRouter.get('/', BlogPostController.getAllBlogPosts);
 
 blogPostRouter.get('/:id', BlogPostController.getBlogPostByID)
 
-blogPostRouter.post('/', BlogPostController.createBlogPost)
+blogPostRouter.post('/', authorization, checkBodyContains('title', 'description', 'blogPostBody'), BlogPostController.createBlogPost)
 
-blogPostRouter.patch('/:id', BlogPostController.editBlogPost)
+// blogPostRouter.get('/myblogs', authorization, BlogPostController.getOwnBlogPosts);
 
-blogPostRouter.delete('/:id', BlogPostController.deleteBlogPostByID)
+blogPostRouter.get('/:id', authorization, BlogPostController.getOwnBlogPostByID);
+
+blogPostRouter.patch('/:id', authorization, BlogPostController.editBlogPost)
+
+blogPostRouter.delete('/:id', authorization, BlogPostController.deleteBlogPost)
 
 
 module.exports = blogPostRouter;

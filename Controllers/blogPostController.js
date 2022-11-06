@@ -13,7 +13,8 @@ async function getAllBlogPosts(req, res) {
             tags, 
             read_count,
             reading_time,
-            order_by = 'createAt', 
+            blogPost = 'asc',
+            order_by = 'createAt',
             page = 1, 
             per_page = 20 
         } = query;
@@ -37,33 +38,34 @@ async function getAllBlogPosts(req, res) {
         const sortAttributes = order_by.split(',')
 
         for (const attribute of sortAttributes) {
-            if (blogPosts === 'asc' && order_by) {
+            if (blogPost === 'asc' && order_by) {
                 sortQuery[attribute] = 1
             }
     
-            if (blogPosts === 'desc' && order_by) {
+            if (blogPost === 'desc' && order_by) {
                 sortQuery[attribute] = -1
             }
 
-            if (blogPosts === 'asc' && read_count) {
+            if (blogPost === 'asc' && read_count) {
                 sortQuery[attribute] = 1
             }
 
-            if (blogPosts === 'desc' && read_count) {
+            if (blogPost === 'desc' && read_count) {
                 sortQuery[attribute] = -1
             }
 
-            if (blogPosts === 'asc' && reading_time) {
+            if (blogPost === 'asc' && reading_time) {
                 sortQuery[attribute] = 1
             }
 
-            if (blogPosts === 'desc' && reading_time) {
+            if (blogPost === 'desc' && reading_time) {
                 sortQuery[attribute] = -1
             }
         }
 
 
         const blogPosts = await BlogPostModel
+        .find({state: { $eq: 'published' }})
         .find(findQuery)
         .sort(sortQuery)
         .skip(page)
@@ -72,14 +74,15 @@ async function getAllBlogPosts(req, res) {
     return res.status(200).json({ status: true, blogPosts })
 }
 
-//Get a BlogPost by Id 
-function getBlogPostByID(req, res) {
+//Get a Particular BlogPost
+const getBlogPostByID = async (req, res) => {
     const id = req.params.id
 
-    // let read_count = 0;
-    // for i 
+    const blogPost = await BlogPostModel.findById(id)
+    blogPost.read_count++
 
-    BlogPostModel.findById(id)
+    await blogPost.save()
+
         .then(blogPost => {
             res.status(200).send(blogPost)
         }).catch(err => {
@@ -89,54 +92,118 @@ function getBlogPostByID(req, res) {
 }
 
 //Create a BlogPost
-const createBlogPost = async (req, res, next) => {
+const createBlogPost = async (req, res) => {
     const body = req.body;
-
-    const reading_time = readingTime(req.body.blogPostBody);
+    const {firstname, lastname, email} = req.blogger;
+    const readTime = await readingTime(req.body.blogPostBody);
+    const author = `${firstname} ${lastname} ${email}`;
+    const readCount = 0;
 
     try {
         const NewBlogPost = await BlogPostModel.create({
-            body,
-            read_count,
-            reading_time
+            ...body,
+            author,
+            read_count: readCount,
+            reading_time: readTime.text,
         });
         return res.json({ status: true, NewBlogPost })
     } catch(err) {
-        return res.json({status: false, error: err})
+        return res.json({status: false, error: err}) 
     }
 };
 
-//Edit detail(s) of a BlogPost
-function editBlogPost(req, res) {
-    const id = req.params.id;
-  
-    const blogPost = req.body;
-    blogPost.lastUpdateAt = new Date() // set the lastUpdateAt to the current date
-    BlogPostModel.findByIdAndUpdate(id, blogPost, { new: true })
-        .then(editedBlogPost => {
-            res.status(200).send(editedBlogPost)
+//Get all Personal BlogPosts
+const getOwnBlogPosts = async (req, res) => {
+    const {firstname, lastname, email} = req.blogger;
+    const author = `${firstname} ${lastname} ${email}`;
+    const { query } = req;
+
+    const { 
+        state,
+        page = 1, 
+        per_page = 20 
+    } = query; 
+
+    const findQuery = {};
+
+    if (state) {
+        findQuery.state = state;
+    } 
+
+    const newBlogPosts = await BlogPostModel
+    .find({author: { $eq: author }})
+    .find(findQuery)
+    .skip(page)
+    .limit(per_page)
+
+    return res.status(200).json({ status: true, newBlogPosts })
+}
+
+//Get a Particular Personal BlogPost 
+const getOwnBlogPostByID = async (req, res) => {
+    const {firstname, lastname, email} = req.blogger;
+    const author = `${firstname} ${lastname} ${email}`;
+
+    const id = req.params.id
+
+    const blogPost = await BlogPostModel.findById(id)
+    blogPost.read_count++
+
+    await blogPost.save()
+
+        .then(blogPost => {
+            res.status(200).send(blogPost)
         }).catch(err => {
-            console.log(err)
-            res.status(500).send(err)
+            res.status(404).send(err)
         })
 }
 
+//Edit detail(s) of a BlogPost
+const editBlogPost = async (req, res) => {
+    const id = req.params.id;
+    const blogPost = await BlogPostModel.findById(id);
+    const {email} = req.blogger;
+    
+    if (blogPost && (blogPost.author.split(' ')[2] === email)) {
+        const blogPost = req.body;
+        blogPost.lastUpdateAt = new Date() // set the lastUpdateAt to the current date
+        BlogPostModel.findByIdAndUpdate(id, blogPost, { new: true })
+            .then(editedBlogPost => {
+                res.status(200).send(editedBlogPost)
+            }).catch(err => {
+                res.status(500).send(err)
+            })
+    } else {
+        res.status(401).send({message: 'You are not authorized to edit this Blog post or blogpost does not exist'})
+    }
+  
+}
+
 //Delete a BlogPost
-function deleteBlogPostByID(req, res) {
+const deleteBlogPost = async (req, res) => {
     const id = req.params.id
-    BlogPostModel.findByIdAndRemove(id)
-        .then(blogPost => {
-            res.status(200).send({msg: `'${blogPost.title}' successfully deleted!`})
-        }).catch(err => {
-            console.log(err)
-            res.status(500).send(err)
-        })
+    const blogPost = await BlogPostModel.findById(id);
+    const {email} = req.blogger;
+
+    if (blogPost && (blogPost.author.split(' ')[2] === email)) {
+        BlogPostModel.findByIdAndRemove(id)
+            .then(blogPost => {
+                res.status(200).send({msg: `'${blogPost.title}' successfully deleted!`})
+            }).catch(err => {
+                res.status(500).send(err)
+            })
+    } else {
+        res.status(401).send({message: 'You are not authorized to delete this Blog post or blogpost does not exist'})
+    }
+
 }
 
 module.exports = {
     getAllBlogPosts,
     getBlogPostByID,
     createBlogPost,
+    getOwnBlogPosts,
+    getOwnBlogPostByID,
     editBlogPost,
-    deleteBlogPostByID
+    deleteBlogPost
 }

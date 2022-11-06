@@ -1,44 +1,51 @@
-const jwt = require('jsonwebtoken');
 const BloggerModel = require('../Models/bloggerModel');
+const createToken = require('../utils/authenticate');
 
 require('dotenv').config();
 
 exports.signup = async (req, res) => {
-
-    const blogger = await BloggerModel.findOne({ username: req.blogger.username})
-
-    blogger.firstname = req.body.firstName
-    blogger.lastname = req.body.lastName
-    blogger.email = req.body.email
-
-    await blogger.save()
-
-    delete blogger.password
-
-    res.status(201).json({
-        message: 'Signup successful',
-        blogger: blogger
-    });
-}
-
-exports.login = (req, res, { err, blogger, info}) => {
-
-    if (!blogger) {
-        return res.json({ message: 'Username or password is incorrect'})
+    
+    const bloggerExists = await BloggerModel.findOne({ email: req.body.email})
+    if (bloggerExists) {
+        return res.status(409).json({
+            message: "Blogger exists, please sign in!"
+        })
     }
 
-    // req.login is provided by passport
-    req.login(blogger, { session: false },
-        async (error) => {
-            if (error) return res.status(400).json(error)
+    try {
+        const blogger = await BloggerModel.create(req.body);
+        const { firstname, lastname, email } = blogger;
+        const token = await createToken({firstname, lastname, email})
+        return res.status(201).json({
+            message: 'Signup successful',
+            blogger,
+            token
+        });
+    } catch(err) {
+        return res.json({status: false, error: err, message: "Something went wrong!"})
+    }
+}
 
-            const body = { _id: blogger._id, username: blogger.username };
-            //You store the id and username in the payload of the JWT. 
-            // You then sign the token with a secret or key (JWT_SECRET), and send back the token to the user.
-            // DO NOT STORE PASSWORDS IN THE JWT!
-            const token = jwt.sign({ blogger: body }, process.env.JWT_SECRET, {expiresIn: '1h'} || 'something_secret');
-
-            return res.status(200).json({ token });
+exports.login = async (req, res) => {
+    const { password } = req.body;
+    try {
+        const blogger = await BloggerModel.findOne({email: req.body.email});
+        
+        if (!blogger) {
+            return res.status(400).json({ message: 'Blogger not found' });
         }
-    );
+        
+        const validate = await blogger.isValidPassword(password);
+        
+        if (!validate) {
+            return res.status(401).json({ message: 'Wrong email or password, please re-enter your details' });
+        }
+        
+        const { firstname, lastname, email } = blogger;
+        const token = await createToken({firstname, lastname, email})
+
+        return res.status(200).json({ message: 'Logged in Successfully', blogger, token });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
 }
