@@ -1,7 +1,7 @@
 const express = require('express');
 const BlogPostController = require('../Controllers/blogPostController');
-const authorization = require('../utils/authorization');
-const checkBodyContains = require('../utils/validation');
+const authorization = require('../Utils/authorization');
+const checkBodyContains = require('../Utils/validation');
 
 const blogPostRouter = express.Router();
 
