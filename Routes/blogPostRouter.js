@@ -11,9 +11,9 @@ blogPostRouter.get('/:id', BlogPostController.getBlogPostByID)
 
 blogPostRouter.post('/', authorization, checkBodyContains('title', 'description', 'blogPostBody'), BlogPostController.createBlogPost)
 
-blogPostRouter.get('/myposts', authorization, BlogPostController.getOwnBlogPosts);
+blogPostRouter.get('/', authorization, BlogPostController.getOwnBlogPosts);
 
-blogPostRouter.get('/myposts:id', authorization, BlogPostController.getOwnBlogPostByID);
+blogPostRouter.get('/:id', authorization, BlogPostController.getOwnBlogPostByID);
 
 blogPostRouter.patch('/:id', authorization, BlogPostController.editBlogPost)
 
