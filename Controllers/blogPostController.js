@@ -1,7 +1,5 @@
 const BlogPostModel = require('../Models/blogPostModel');
-// const moment = require('moment');
 const readingTime = require('reading-time');
-const session = require('express-session');
 
 //Get all the BlogPosts
 async function getAllBlogPosts(req, res) {

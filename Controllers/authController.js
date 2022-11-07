@@ -1,5 +1,5 @@
 const BloggerModel = require('../Models/bloggerModel');
-const createToken = require('../utils/authenticate');
+const createToken = require('../Utils/authenticate');
 
 require('dotenv').config();
 
