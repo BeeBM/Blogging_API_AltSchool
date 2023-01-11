@@ -4,89 +4,70 @@ const readingTime = require('reading-time');
 //Get all the BlogPosts
 async function getAllBlogPosts(req, res) {
     const { query } = req;
+    const {
+        author, 
+        title, 
+        tags, 
+        read_count,
+        reading_time,
+        blogPost,
+        order_by = 'createAt',
+        page = 1, 
+        per_page = 20 
+    } = query;
 
-        const { 
-            author, 
-            title, 
-            tags, 
-            read_count,
-            reading_time,
-            blogPost = 'asc',
-            order_by = 'createAt',
-            page = 1, 
-            per_page = 20 
-        } = query;
+    const findQuery = {};
 
-        const findQuery = {};
+    if (author) {
+        findQuery.author = author;
+    } 
 
-        if (author) {
-            findQuery.author = author;
-        } 
+    if (title) {
+        findQuery.title = title;
+    }
 
-        if (title) {
-            findQuery.title = title;
-        }
-
-        if (tags) {
-            findQuery.tags = tags;
-        }
+    if (tags) {
+        findQuery.tags = tags;
+    }
     
-        const sortQuery = {};
+    const sortQuery = {};
+    const sortAttributes = order_by.split(',');
 
-        const sortAttributes = order_by.split(',')
-
-        for (const attribute of sortAttributes) {
-            if (blogPost === 'asc' && order_by) {
-                sortQuery[attribute] = 1
-            }
-    
-            if (blogPost === 'desc' && order_by) {
-                sortQuery[attribute] = -1
-            }
-
-            if (blogPost === 'asc' && read_count) {
-                sortQuery[attribute] = 1
-            }
-
-            if (blogPost === 'desc' && read_count) {
-                sortQuery[attribute] = -1
-            }
-
-            if (blogPost === 'asc' && reading_time) {
-                sortQuery[attribute] = 1
-            }
-
-            if (blogPost === 'desc' && reading_time) {
-                sortQuery[attribute] = -1
-            }
+    for (const attribute of sortAttributes) {
+        let sortOrder = 1;
+        switch (blogPost) {
+            case 'asc':
+                sortOrder = 1;
+                break;
+            case 'desc':
+                sortOrder = -1;
+                break;
         }
+        sortQuery[attribute] = sortOrder;
+    }
 
-
-        const blogPosts = await BlogPostModel
+    const blogPosts = await BlogPostModel
         .find({state: { $eq: 'published' }})
         .find(findQuery)
         .sort(sortQuery)
-        .skip(page)
-        .limit(per_page)
+        .skip((page - 1) * per_page)
+        .limit(per_page);
 
-    return res.status(200).json({ status: true, blogPosts })
+    return res.status(200).json({ status: true, blogPosts });
 }
 
 //Get a Particular BlogPost
 const getBlogPostByID = async (req, res) => {
-    const id = req.params.id
+    const id = req.params.id;
 
-    const blogPost = await BlogPostModel.findById(id)
-    blogPost.read_count++
+    const blogPost = await BlogPostModel.findOne({ _id: id });
+    if (!blogPost) {
+        return res.status(404).send('Blog post not found');
+    }
+    blogPost.read_count++;
 
-    await blogPost.save()
-
-        .then(blogPost => {
-            res.status(200).send(blogPost)
-        }).catch(err => {
-            console.log(err)
-            res.status(404).send(err)
-        })
+    await blogPost.save();
+    return res.status(200).send(blogPost);
 }
 
 //Create a BlogPost
@@ -128,11 +109,10 @@ const getOwnBlogPosts = async (req, res) => {
         findQuery.state = state;
     } 
 
-    const newBlogPosts = await BlogPostModel
-    .find({author: { $eq: author }})
-    .find(findQuery)
-    .skip(page)
-    .limit(per_page)
+    const newBlogPosts = await BlogPostModel.find(
+        { author: { $eq: author } },
+        { state: 1, page: 1, per_page: 1 }
+    );
 
     return res.status(200).json({ status: true, newBlogPosts })
 }
