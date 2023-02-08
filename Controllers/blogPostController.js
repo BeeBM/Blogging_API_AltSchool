@@ -67,7 +67,7 @@ const getBlogPostByID = async (req, res) => {
     blogPost.read_count++;
 
     await blogPost.save();
-    return res.status(200).send(blogPost);
+    return res.status(200).send({blogPost, status: true});
 }
 
 //Create a BlogPost
@@ -154,8 +154,7 @@ const editBlogPost = async (req, res) => {
             })
     } else {
         res.status(401).send({message: 'You are not authorized to edit this Blog post or blogpost does not exist'})
-    }
-  
+    } 
 }
 
 //Delete a BlogPost

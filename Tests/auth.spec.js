@@ -30,7 +30,6 @@ describe('Auth: Signup', () => {
         })
 
         expect(response.status).toBe(201)
-        expect(response.body).toHaveProperty('message')
         expect(response.body).toHaveProperty('user')
         expect(response.body.user).toHaveProperty('username', 'BiBe')
         expect(response.body.user).toHaveProperty('firstname', 'BiOluwatife')

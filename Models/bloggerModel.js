@@ -9,7 +9,7 @@ const BloggerId = Schema.ObjectId;
 
 //Define Blogger Schema
 const BloggerSchema = new Schema({
-    Id: BloggerId,
+    id: BloggerId,
     firstname: {
         type: String,
         required: true

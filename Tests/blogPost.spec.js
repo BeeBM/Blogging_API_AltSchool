@@ -13,7 +13,7 @@ describe('Blogger Route', () => {
     beforeAll(async () => {
         conn = await connect()
 
-        await BloggerModel.create({ username: 'Bibe', password: 'Pword123'});
+        await BloggerModel.create({ firstname: "Boluwatife", lastname: "BeeB", email: "beeb@gmail.com", username: 'Bibe', password: 'Pword123'});
 
         const loginResponse = await request(app)
         .post('/login')
@@ -95,7 +95,7 @@ describe('Blogger Route', () => {
             read_count: 0
         })
 
-        await BlogPostModel.create({
+        const createdBlogPost = await BlogPostModel.create({
             title: 'The Young shall lead.',
             description: 'The Old shall lead by maturity.',
             author: 'Older Young',
@@ -112,7 +112,7 @@ describe('Blogger Route', () => {
         })
 
         const response = await request(app)
-        .get('/blogPosts/:id')
+        .get(`/blogPosts/${createdBlogPost._id}`)
         .set('content-type', 'application/json')
 
         expect(response.status).toBe(200)
@@ -138,7 +138,7 @@ describe('Blogger Route', () => {
             read_count: 0
         })
 
-        await BlogPostModel.findByIdAndUpdate({
+        const editedBlogPost = await BlogPostModel.findByIdAndUpdate({
             title: 'The Young shall lead us well.',
             author: 'Older Young',
             state: 'published',
@@ -154,7 +154,7 @@ describe('Blogger Route', () => {
         })
 
         const response = await request(app)
-        .get('/blogPosts/:id')
+        .get(`/blogPosts/${editedBlogPost._id}`)
         .set('content-type', 'application/json')
         .set('Authorization', `Bearer ${token}`)
 
@@ -181,7 +181,7 @@ describe('Blogger Route', () => {
             read_count: 0
         })
 
-        await BlogPostModel.findByIdAndDelete({
+        const deletedBlogPost = await BlogPostModel.findByIdAndDelete({
             title: 'The Young shall lead us well.',
             author: 'Older Young',
             state: 'published',
@@ -197,7 +197,7 @@ describe('Blogger Route', () => {
         })
 
         const response = await request(app)
-        .get('/blogPosts/:id')
+        .get(`/blogPosts/${deletedBlogPost._id}`)
         .set('content-type', 'application/json')
         .set('Authorization', `Bearer ${token}`)
 
